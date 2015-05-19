@@ -38,3 +38,6 @@ coverage.xml
 
 ### Dynamic Project Files
 data/
+
+### Local Configuration File
+config.py
