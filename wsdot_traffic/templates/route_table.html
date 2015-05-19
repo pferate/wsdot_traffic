@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>WSDOT Traffic Information</h1>
+    <div>
+        <h3>Available Routes</h3>
+        <table class="center">
+            <tr>
+                <th class="t10">ID</th>
+                <th class="t10">Current</th>
+                <th class="t10">Average</th>
+                <th class="t70">Description</th>
+            </tr>
+            {% for route in routes %}
+            <tr>
+                <td class="t10 center">{{ route['id'] }}</td>
+                <td class="t10 center">{{ route['current'] }}</td>
+                <td class="t10 center">{{ route['average'] }}</td>
+                <td class="t70">{{ route['description'] }}</td>
+            </tr>
+            {%  endfor %}
+        </table>
+    </div>
+{% endblock %}
