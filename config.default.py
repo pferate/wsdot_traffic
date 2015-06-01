@@ -13,12 +13,22 @@ class Config(object):
 
     # Directory to store the collected data
     DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
-    JSON_DIR = os.path.join(DgATA_DIR, 'json')
-    CSV_DIR = os.path.join(DATA_DIR, 'csv')
+    DIRECTORIES = {
+        'JSON': os.path.join(DATA_DIR, 'json'),
+        'WORKING': os.path.join(DATA_DIR, 'working'),
+        'ARCHIVE': os.path.join(DATA_DIR, 'archive'),
+        'CSV': os.path.join(DATA_DIR, 'csv'),
+    }
 
     # Interval in seconds to call the API.
     # Wsdot states that the API refreshes every 90 seconds
-    PERIODIC_TIMER_INTERVAL = 60
+    PERIODIC_TIMER_INTERVAL = 120
+
+    PLOTLY_OPTIONS = {
+        # 'USERNAME': 'ENTER_YOUR_USERNAME',
+        # 'API_KEY': 'ENTER_YOUR_API_KEY',
+        # 'DIRECTORY': 'WS DOT',
+    }
 
 
 class ProductionConfig(Config):

@@ -19,24 +19,24 @@ manager.add_command("shell", Shell())
 def runcollector():
     """Run the collector script.  (WS DOT)"""
     run_collector(app.config.get('PERIODIC_TIMER_INTERVAL'),
-                  app.config.get('JSON_DIR'))
+                  app.config.get('DIRECTORIES').get('JSON'))
 
 @manager.command
 def runpublisher():
     """Publish ready (collected) files to Plotly periodically"""
     run_publisher(app.config.get('PLOTLY_OPTIONS'),
                   10 * app.config.get('PERIODIC_TIMER_INTERVAL'),
-                  app.config.get('JSON_DIR'),
-                  app.config.get('WORKING_DIR'),
-                  app.config.get('ARCHIVE_DIR'))
+                  app.config.get('DIRECTORIES').get('JSON'),
+                  app.config.get('DIRECTORIES').get('WORKING'),
+                  app.config.get('DIRECTORIES').get('ARCHIVE'))
 
 @manager.command
 def publish():
     """Publish ready (collected) files to Plotly"""
     publish_ready_files(app.config.get('PLOTLY_OPTIONS'),
-                        app.config.get('JSON_DIR'),
-                        app.config.get('WORKING_DIR'),
-                        app.config.get('ARCHIVE_DIR'))
+                        app.config.get('DIRECTORIES').get('JSON'),
+                        app.config.get('DIRECTORIES').get('WORKING'),
+                        app.config.get('DIRECTORIES').get('ARCHIVE'))
 
 @manager.command
 def current():
@@ -51,6 +51,7 @@ def current():
 
 @manager.command
 def json2csv_batch():
-    parser.json2csv_batch(app.config.get('JSON_DIR'), app.config.get('CSV_DIR'))
+    parser.json2csv_batch(app.config.get('DIRECTORIES').get('JSON'),
+                          app.config.get('DIRECTORIES').get('CSV'))
 
 manager.run()
