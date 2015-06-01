@@ -16,11 +16,23 @@ table.center {
 th.center, td.center {
     text-align: center;
 }
+th.t5, td.t5, th.t05, td.t05 {
+    width: 5%;
+}
 th.t10, td.t10 {
     width: 10%;
 }
+th.t15, td.t15 {
+    width: 15%;
+}
 th.t20, td.t20 {
     width: 20%;
+}
+th.t30, td.t30 {
+    width: 30%;
+}
+th.t40, td.t40 {
+    width: 40%;
 }
 th.t70, td.t70 {
     width: 70%;
