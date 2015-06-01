@@ -9,7 +9,7 @@ class Config(object):
     # WSDOT_ACCESS_CODE must be set to the one assigned to you by WSDOT.
     # See: http://www.wsdot.wa.gov/traffic/api/
     #
-    # WSDOT_ACCESS_CODE = 'ENTER_YOUR_ACCESS_CODE'
+    WSDOT_ACCESS_CODE = 'ENTER_VALUE'
 
     # Directory to store the collected data
     DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
@@ -25,9 +25,9 @@ class Config(object):
     PERIODIC_TIMER_INTERVAL = 120
 
     PLOTLY_OPTIONS = {
-        # 'USERNAME': 'ENTER_YOUR_USERNAME',
-        # 'API_KEY': 'ENTER_YOUR_API_KEY',
-        # 'DIRECTORY': 'WS DOT',
+        'USERNAME': 'ENTER_VALUE',
+        'API_KEY': 'ENTER_VALUE',
+        'DIRECTORY': 'WS DOT',
     }
 
 
