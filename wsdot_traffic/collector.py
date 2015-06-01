@@ -1,6 +1,6 @@
 import os
 import urllib.request
-from time import sleep, strftime
+from time import strftime
 
 
 WSDOT_API_URLS = {}
@@ -32,33 +32,15 @@ def collect_data(last_results=None, collection_dir=None):
     # latest_travel_times() is subject to external network errors
     results = latest_travel_times()
     diff = False
-    if collection_dir and last_results != results:
-        datetime = strftime('%Y%m%d.%H%M%S')
+    if last_results != results:
         diff = True
+    if diff and collection_dir:
+        datetime = strftime('%Y%m%d.%H%M%S')
         file_name = '{dir}/travel_times.{datetime}.json'.format(dir=collection_dir,
                                                                 datetime=datetime)
         with open(file_name, 'wb') as output_file:
             output_file.write(results)
     return results, diff
-
-def run_collector(sleep_time, collection_dir):
-    # exist_ok was introduced in Python3.2.
-    # If we need to work with older versions, this can change to a try...except
-    os.makedirs(collection_dir, exist_ok=True)
-    last_results = None
-
-    while True:
-        sleep(sleep_time)
-        try:
-            last_results, diff = collect_data(last_results, collection_dir)
-            if diff:
-                # print(current_datetime, current_results)
-                print("New Data!")
-            else:
-                print("No change")
-        except urllib.error.URLError as e:
-            print(e)
-            continue
 
 
 if __name__ == '__main__':
