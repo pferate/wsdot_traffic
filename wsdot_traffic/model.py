@@ -127,6 +127,7 @@ def publish_routes(plotly_options, plotly_routes):
                ' ', pb.ETA(), ' ', pb.FileTransferSpeed()]
     progress = pb.ProgressBar(widgets=widgets)
     url_map = {}
+    retry_count = 5
     for route_id, route_data in progress(plotly_routes.items()):
         plotly_filename = '{dir}/route_{plot_id}'.format(dir=plotly_options['DIRECTORY'],
                                                          plot_id=route_data['id'])
@@ -165,9 +166,23 @@ def publish_routes(plotly_options, plotly_routes):
             )
         )
         fig = Figure(data=data, layout=layout)
-        # print(route_data['name'])
-        # Take 1: if there is no data in the plot, 'extend' will create new traces.
-        plot_url = plotly.plot(fig, filename=plotly_filename, fileopt='extend', world_readable=True, auto_open=False)
-        # plot_url = plotly.plot(fig, filename=plotly_filename, world_readable=True, auto_open=False)
-        url_map[route_id] = plot_url
+        attempt_count = 0
+        while True:
+            try:
+                plot_url = plotly.plot(fig, filename=plotly_filename, fileopt='extend',
+                                       world_readable=True, auto_open=False)
+                url_map[route_id] = plot_url
+                break
+            except plotly_exceptions.PlotlyAccountError as error:
+                if attempt_count < retry_count:
+                    attempt_count += 1
+                    print('An error occured while publishing: [{}]'.format(error))
+                    for i in range(10):
+                        print('.', end='')
+                        sleep(1)
+                    print('\tRetrying')
+                else:
+                    # Ran out of attempts, raise the error up a level
+                    raise error
+
     return url_map
