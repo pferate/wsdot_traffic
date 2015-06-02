@@ -13,7 +13,17 @@ from plotly.graph_objs import Data, Layout, Scatter, XAxis, YAxis, Font, Figure
 from . import collector, parser, util
 
 
-def get_routes():
+def get_routes(url_map_filepath=None):
+    # Open URL File if it's there
+    url_map = {}
+    if url_map_filepath and os.path.isfile(url_map_filepath):
+        with open(url_map_filepath, 'r') as f:
+            for line in f:
+                route_id, url = line.strip().split(',')
+                try:
+                    url_map[int(route_id)] = url
+                except ValueError:
+                    pass
     results, diff = collector.collect_data()
     output_dict = {}
     for route_info in util.bytes2json(results):
@@ -23,6 +33,7 @@ def get_routes():
                                                    'current':     route_info['CurrentTime'],
                                                    'average':     route_info['AverageTime'],
                                                    'update_time': route_info['TimeUpdated'],
+                                                   'url':         url_map.get(route_info['TravelTimeID'], ''),
                                                    }
     return output_dict
 
@@ -48,16 +59,16 @@ def run_collector(sleep_time, json_dir):
             print(e)
         sleep(sleep_time)
 
-def run_publisher(plotly_options, sleep_time, json_dir, working_dir, archive_dir):
+def run_publisher(plotly_options, sleep_time, json_dir, working_dir, archive_dir, url_map_csv):
     while True:
         print("{}\tChecking for ready files.".format(datetime.now()))
         # Most (all?) exceptions should be handled within the function,
         # so no need to duplicate it out here.
-        publish_ready_files(plotly_options, json_dir, working_dir, archive_dir)
+        publish_ready_files(plotly_options, json_dir, working_dir, archive_dir, url_map_csv)
         print("{}\tDone.".format(datetime.now()))
         sleep(sleep_time)
 
-def publish_ready_files(plotly_options, json_dir, working_dir, archive_dir):
+def publish_ready_files(plotly_options, json_dir, working_dir, archive_dir, url_map_csv):
     # exist_ok was introduced in Python3.2.
     # If we need to work with older versions, this can change to a try...except
     os.makedirs(working_dir, exist_ok=True)
@@ -86,7 +97,15 @@ def publish_ready_files(plotly_options, json_dir, working_dir, archive_dir):
                 continue
         plotly_data = parser.json2plotly(json_out, plotly_data)
     try:
-        publish_route(plotly_options, plotly_data)
+        url_map = publish_routes(plotly_options, plotly_data)
+
+        # Create URL File if not there
+        if not os.path.isfile(url_map_csv):
+            with open(url_map_csv, 'w') as f:
+                f.write('route_id,url\n')
+                for route_id, url in url_map.items():
+                    f.write('{},{}\n'.format(route_id, url))
+
 
         # Move JSON files to the Archive Directory
         for filename in os.listdir(working_dir):
@@ -98,7 +117,7 @@ def publish_ready_files(plotly_options, json_dir, working_dir, archive_dir):
     except requests_exceptions.HTTPError as error:
         print('There was a HTTP Error: [{}]'.format(error))
 
-def publish_route(plotly_options, plotly_routes):
+def publish_routes(plotly_options, plotly_routes):
     if not plotly_routes:
         print('No routes to plot')
         return
@@ -107,6 +126,7 @@ def publish_route(plotly_options, plotly_routes):
     widgets = ['Sending data to Plotly: ', pb.Percentage(), ' ', pb.Bar(marker=pb.RotatingMarker()),
                ' ', pb.ETA(), ' ', pb.FileTransferSpeed()]
     progress = pb.ProgressBar(widgets=widgets)
+    url_map = {}
     for route_id, route_data in progress(plotly_routes.items()):
         plotly_filename = '{dir}/route_{plot_id}'.format(dir=plotly_options['DIRECTORY'],
                                                          plot_id=route_data['id'])
@@ -149,3 +169,5 @@ def publish_route(plotly_options, plotly_routes):
         # Take 1: if there is no data in the plot, 'extend' will create new traces.
         plot_url = plotly.plot(fig, filename=plotly_filename, fileopt='extend', world_readable=True, auto_open=False)
         # plot_url = plotly.plot(fig, filename=plotly_filename, world_readable=True, auto_open=False)
+        url_map[route_id] = plot_url
+    return url_map

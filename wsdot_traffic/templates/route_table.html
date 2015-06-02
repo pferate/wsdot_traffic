@@ -1,27 +1,61 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>WSDOT Traffic Information</h1>
-    <div>
+    <script src="http://listjs.com/no-cdn/list.js"></script>
+    <div id="route-list">
         <h3>Available Routes</h3>
         <table class="center">
-            <tr>
-                <th class="t05">ID</th>
-                <th class="t05">Current</th>
-                <th class="t05">Average</th>
-                <th class="t30">Name</th>
-                <th class="t40">Description</th>
-                <th class="t15">Updated</th>
-            </tr>
+            <thead>
+                <tr>
+                    <th class="t05"><span class="sort" data-sort="id">ID</span></th>
+                    <th class="t05"><span class="sort" data-sort="current">Current</span></th>
+                    <th class="t05"><span class="sort" data-sort="average">Average</span></th>
+                    <th class="t30"><span class="sort" data-sort="name">Name</span></th>
+                    <th class="t40"><span class="sort" data-sort="description">Description</span></th>
+                    <th class="t15"><span class="sort" data-sort="updated">Updated</span></th>
+                </tr>
+                <tr>
+                    <th class="t05"></th>
+                    <th class="t05"></th>
+                    <th class="t05"></th>
+                    <th class="t30"><input class="search" placeholder="Search" /></th>
+                    <th class="t40"></th>
+                    <th class="t15"></th>
+                </tr>
+            </thead>
+            <tbody class="list">
             {% for route in routes.values()|sort(attribute='id') %}
-            <tr>
-                <td class="t05 center">{{ route['id'] }}</td>
-                <td class="t05 center">{{ route['current'] }}</td>
-                <td class="t05 center">{{ route['average'] }}</td>
-                <td class="t30">{{ route['name'] }}</td>
-                <td class="t40">{{ route['description'] }}</td>
-                <td class="t15 center">{{ route['update_time'] }}</td>
-            </tr>
+                <tr>
+                    <td class="t05 center id">{{ route['id'] }}</td>
+                    <td class="t05 center current">{{ route['current'] }}</td>
+                    <td class="t05 center average">{{ route['average'] }}</td>
+                    <td class="t30 name">
+                        {{ route['name'] }}
+                        {%  if route['url'] %}
+
+                        &nbsp;&nbsp;<a href="{{ route['url'] }}" target="_blank" class="link">[LINK]</a>
+                        {% else %}
+                        <span></span>
+                        {%  endif %}
+                    </td>
+                    <td class="t40 description">{{ route['description'] }}</td>
+    {#                <td class="t40">#}
+    {#                    <img src="{{ route['url'] }}.png"#}
+    {#                         alt="{{ route['name'] }}"#}
+    {#                         style="max-width: 100%;"#}
+    {#                         onerror="this.onerror=null;this.src='https://plot.ly/404.png';" #}
+    {#                    />#}
+    {#                </td>#}
+                    <td class="t15 center updated">{{ route['update_time'] }}</td>
+                </tr>
             {%  endfor %}
+            </tbody>
         </table>
     </div>
+    <script type="application/javascript">
+        var options = {
+          valueNames: [ 'id', 'current', 'average', 'name', 'description', 'updated' ]
+        };
+        var route_list = new List('route-list', options);
+    </script>
 {% endblock %}

@@ -52,7 +52,8 @@ def runpublisher():
                   10 * app.config.get('PERIODIC_TIMER_INTERVAL'),
                   app.config.get('DIRECTORIES').get('JSON'),
                   app.config.get('DIRECTORIES').get('WORKING'),
-                  app.config.get('DIRECTORIES').get('ARCHIVE'))
+                  app.config.get('DIRECTORIES').get('ARCHIVE'),
+                  app.config.get('URL_MAP_CSV'))
 
 @manager.command
 def publish():

@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
-    route_dict = get_routes()
+def route_table():
+    route_dict = get_routes(url_map_filepath=app.config.get('URL_MAP_CSV'))
     for values in route_dict.values():
         values['update_time'] = clean_js_timestamp(values['update_time'])
     return render_template('route_table.html', routes=route_dict)
