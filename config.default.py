@@ -19,6 +19,7 @@ class Config(object):
         'ARCHIVE': os.path.join(DATA_DIR, 'archive'),
         'CSV': os.path.join(DATA_DIR, 'csv'),
     }
+    URL_MAP_CSV = os.path.join(DATA_DIR, 'url_map.csv')
 
     # Interval in seconds to call the API.
     # Wsdot states that the API refreshes every 90 seconds
