@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>WSDOT Traffic Information</h1>
+    <script src="http://listjs.com/no-cdn/list.js"></script>
+    <div id="route-list">
+        <table class="center">
+            <thead>
+                <tr>
+                    <th class="t40"><span class="sort" data-sort="name">Name</span></th>
+                    <th class="t60"><span class="sort" data-sort="description">Description</span></th>
+                </tr>
+                <tr>
+                    <th class="t40"><input class="search" placeholder="Search" /></th>
+                    <th class="t60"></th>
+                </tr>
+            </thead>
+            <tbody class="list">
+            {% for route in routes.values()|sort(attribute='id') %}
+                <tr>
+                    <td class="t40 name">
+                        {{ route['name'] }}
+                        {%  if route['url'] %}
+
+                        &nbsp;&nbsp;<a href="{{ route['url'] }}" target="_blank" class="link">[LINK]</a>
+                        {% else %}
+                        <span></span>
+                        {%  endif %}
+                    </td>
+                    <td class="t60 description">{{ route['description'] }}</td>
+    {#                <td class="t40">#}
+    {#                    <img src="{{ route['url'] }}.png"#}
+    {#                         alt="{{ route['name'] }}"#}
+    {#                         style="max-width: 100%;"#}
+    {#                         onerror="this.onerror=null;this.src='https://plot.ly/404.png';" #}
+    {#                    />#}
+    {#                </td>#}
+                </tr>
+            {%  endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script type="application/javascript">
+        var options = {
+          valueNames: [ 'name', 'description' ]
+        };
+        var route_list = new List('route-list', options);
+    </script>
+{% endblock %}
