@@ -61,7 +61,8 @@ def publish():
     publish_ready_files(app.config.get('PLOTLY_OPTIONS'),
                         app.config.get('DIRECTORIES').get('JSON'),
                         app.config.get('DIRECTORIES').get('WORKING'),
-                        app.config.get('DIRECTORIES').get('ARCHIVE'))
+                        app.config.get('DIRECTORIES').get('ARCHIVE'),
+                        app.config.get('URL_MAP_CSV'))
 
 @manager.command
 def current():
