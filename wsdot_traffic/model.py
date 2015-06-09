@@ -116,6 +116,8 @@ def publish_ready_files(plotly_options, json_dir, working_dir, archive_dir, url_
         print('An error occured while publishing: [{}]'.format(error))
     except requests_exceptions.HTTPError as error:
         print('There was a HTTP Error: [{}]'.format(error))
+    except requests_exceptions.ConnectionError as error:
+        print('There was a Connection Error: [{}]'.format(error))
 
 def publish_routes(plotly_options, plotly_routes):
     if not plotly_routes:
