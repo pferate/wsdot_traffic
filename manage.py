@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+import logging
 import os
 import sys
+from flask.ext.logconfig import LogConfig
 from flask.ext.script import Manager, Shell, Server
 from wsdot_traffic import app, collector, parser
 from wsdot_traffic.model import run_collector, run_publisher, publish_ready_files
@@ -9,8 +11,12 @@ from wsdot_traffic.model import run_collector, run_publisher, publish_ready_file
 # Look for the config from ENV, but if it's not there, assume Production
 app.config.from_object(os.environ.get('APP_SETTINGS', 'config.ProductionConfig'))
 
+logcfg = LogConfig(app)
+
+logger = logging.getLogger('wsdot_traffic')
+
 def check_configuration():
-    missing_entries = []
+    missing_entries = False
     required_entries = [
         "['PLOTLY_OPTIONS']['USERNAME']",
         "['PLOTLY_OPTIONS']['API_KEY']",
@@ -19,15 +25,11 @@ def check_configuration():
     for entry in required_entries:
         try:
             if eval('app.config'+entry) == 'ENTER_VALUE':
-                missing_entries.append(entry)
+                raise KeyError()
         except KeyError:
-            missing_entries.append(entry)
-    if missing_entries:
-        print('Missing the following configuration entries', end='\n\t')
-        print('\n\t'.join(missing_entries))
-        return False
-    else:
-        return True
+            logger.critical('Config Value: [{}] needs to be defined'.format(entry))
+            missing_entries = True
+    return not missing_entries
 
 if not check_configuration():
     sys.exit(1)
@@ -42,12 +44,14 @@ manager.add_command("shell", Shell())
 @manager.command
 def runcollector():
     """Run the collector script.  (WS DOT)"""
+    logger.info('Starting Periodic Collector')
     run_collector(app.config.get('PERIODIC_TIMER_INTERVAL'),
                   app.config.get('DIRECTORIES').get('JSON'))
 
 @manager.command
 def runpublisher():
     """Publish ready (collected) files to Plotly periodically"""
+    logger.info('Starting Periodic Publisher')
     run_publisher(app.config.get('PLOTLY_OPTIONS'),
                   10 * app.config.get('PERIODIC_TIMER_INTERVAL'),
                   app.config.get('DIRECTORIES').get('JSON'),
@@ -58,6 +62,7 @@ def runpublisher():
 @manager.command
 def publish():
     """Publish ready (collected) files to Plotly"""
+    logger.info('Starting One-time Publisher')
     publish_ready_files(app.config.get('PLOTLY_OPTIONS'),
                         app.config.get('DIRECTORIES').get('JSON'),
                         app.config.get('DIRECTORIES').get('WORKING'),
@@ -67,6 +72,7 @@ def publish():
 @manager.command
 def current():
     """Collect the current traffic status.  (WS DOT)"""
+    logger.info('Getting Current traffic status')
     results, diff = collector.collect_data()
     route_list = parser.current_traffic(results)
     print('ID\tCurrent\tAverage\tName')
