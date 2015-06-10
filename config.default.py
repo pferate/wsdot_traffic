@@ -11,8 +11,9 @@ class Config(object):
     #
     WSDOT_ACCESS_CODE = 'ENTER_VALUE'
 
+    BASE_DIR = os.path.dirname(__file__)
     # Directory to store the collected data
-    DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+    DATA_DIR = os.path.join(BASE_DIR, 'data')
     DIRECTORIES = {
         'JSON': os.path.join(DATA_DIR, 'json'),
         'WORKING': os.path.join(DATA_DIR, 'working'),
