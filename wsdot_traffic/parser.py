@@ -43,6 +43,7 @@ def current_traffic(json_obj):
                             'description': route_info['Description'],
                             'current':     route_info['CurrentTime'],
                             'average':     route_info['AverageTime'],
+                            'update_time': clean_js_timestamp(route_info['TimeUpdated']),
                             })
     return output_list
 
