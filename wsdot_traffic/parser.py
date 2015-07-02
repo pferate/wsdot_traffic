@@ -47,6 +47,21 @@ def current_traffic(json_obj):
                             })
     return output_list
 
+def current_traffic_dict(json_obj):
+    if isinstance(json_obj, bytes):
+        json_obj = bytes2json(json_obj)
+    output_list = {}
+    for route_info in json_obj:
+        output_list[route_info['TravelTimeID']] = {
+            'id':          route_info['TravelTimeID'],
+            'name':        route_info['Name'],
+            'description': route_info['Description'],
+            'current':     route_info['CurrentTime'],
+            'average':     route_info['AverageTime'],
+            'update_time': clean_js_timestamp(route_info['TimeUpdated']),
+        }
+    return output_list
+
 def get_routes(json_obj):
     if isinstance(json_obj, bytes):
         json_obj = bytes2json(json_obj)
