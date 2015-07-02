@@ -7,7 +7,7 @@ from flask.ext.logconfig import LogConfig
 from flask.ext.script import Manager, Shell, Server
 from wsdot_traffic import app, collector, parser
 from wsdot_traffic.collector import run_collector
-from wsdot_traffic.model import run_publisher, publish_ready_files
+from wsdot_traffic.publisher import run_publisher, publish_ready_files
 
 # Look for the config from ENV, but if it's not there, assume Production
 app.config.from_object(os.environ.get('APP_SETTINGS', 'config.ProductionConfig'))

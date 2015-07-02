@@ -11,7 +11,7 @@ from plotly.graph_objs import Data, Layout, Scatter, XAxis, YAxis, Font, Figure
 
 from .parser import json2plotly
 
-logger = logging.getLogger('wsdot_traffic.model')
+logger = logging.getLogger('wsdot_traffic.publisher')
 
 
 def run_publisher(plotly_options, sleep_time, json_dir, working_dir, archive_dir, url_map_csv):

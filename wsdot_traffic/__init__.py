@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-from .model import get_routes
+from .collector import get_routes
 from .util import clean_js_timestamp
 
 app = Flask(__name__)
