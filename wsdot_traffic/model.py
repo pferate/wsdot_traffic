@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import urllib.request
 from time import sleep
 from requests import exceptions as requests_exceptions
 
@@ -10,60 +9,10 @@ import progressbar as pb
 from plotly import plotly, exceptions as plotly_exceptions
 from plotly.graph_objs import Data, Layout, Scatter, XAxis, YAxis, Font, Figure
 
-from . import collector, parser, util
+from .parser import json2plotly
 
-logger = logging.getLogger('wsdot_traffic')
+logger = logging.getLogger('wsdot_traffic.model')
 
-
-def get_routes(url_map_filepath=None):
-    # Open URL File if it's there
-    url_map = {}
-    if url_map_filepath and os.path.isfile(url_map_filepath):
-        with open(url_map_filepath, 'r') as f:
-            for line in f:
-                route_id, url = line.strip().split(',')
-                try:
-                    url_map[int(route_id)] = url
-                except ValueError:
-                    pass
-    results, diff = collector.collect_data()
-    output_dict = {}
-    for route_info in util.bytes2json(results):
-        output_dict[route_info['TravelTimeID']] = {'id':          route_info['TravelTimeID'],
-                                                   'name':        route_info['Name'],
-                                                   'description': route_info['Description'],
-                                                   'current':     route_info['CurrentTime'],
-                                                   'average':     route_info['AverageTime'],
-                                                   'update_time': route_info['TimeUpdated'],
-                                                   'url':         url_map.get(route_info['TravelTimeID'], ''),
-                                                   }
-    return output_dict
-
-def run_collector(sleep_time, json_dir):
-    # exist_ok was introduced in Python3.2.
-    # If we need to work with older versions, this can change to a try...except
-    os.makedirs(json_dir, exist_ok=True)
-    try:
-        logger.info("Locating latest file")
-        newest_filepath = sorted(os.listdir(json_dir))[-1]
-        with open('{dir}/{file}'.format(dir=json_dir, file=newest_filepath), mode='rb') as f:
-            logger.info("Loading latest file")
-            last_results = f.read()
-    except IndexError:
-        logger.info("No file found in JSON directory")
-        last_results = None
-
-    while True:
-        try:
-            logger.info("Getting current traffic data")
-            last_results, diff = collector.collect_data(last_results, json_dir)
-            if diff:
-                logger.debug("New Data!")
-            else:
-                logger.debug("No Change")
-        except urllib.error.URLError as e:
-            logger.error(e)
-        sleep(sleep_time)
 
 def run_publisher(plotly_options, sleep_time, json_dir, working_dir, archive_dir, url_map_csv):
     while True:
@@ -102,7 +51,7 @@ def publish_ready_files(plotly_options, json_dir, working_dir, archive_dir, url_
             except ValueError:
                 logger.warning('Unable to load JSON (Skipping) [{}]'.format(filename))
                 continue
-        plotly_data = parser.json2plotly(json_out, plotly_data)
+        plotly_data = json2plotly(json_out, plotly_data)
     try:
         logger.debug("Publishing routes")
         url_map = publish_routes(plotly_options, plotly_data)

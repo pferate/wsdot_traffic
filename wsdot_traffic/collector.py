@@ -1,8 +1,13 @@
+import logging
 import os
 from six.moves.urllib.request import urlopen
 from six.moves.urllib import error as urllib_error
-from time import strftime
+from time import sleep, strftime
 
+from . import util
+
+
+logger = logging.getLogger('wsdot_traffic.collector')
 
 WSDOT_API_URLS = {}
 
@@ -46,6 +51,55 @@ def collect_data(last_results=None, collection_dir=None):
             output_file.write(results)
     return results, diff
 
+def get_routes(url_map_filepath=None):
+    # Open URL File if it's there
+    url_map = {}
+    if url_map_filepath and os.path.isfile(url_map_filepath):
+        with open(url_map_filepath, 'r') as f:
+            for line in f:
+                route_id, url = line.strip().split(',')
+                try:
+                    url_map[int(route_id)] = url
+                except ValueError:
+                    pass
+    results, diff = collect_data()
+    output_dict = {}
+    for route_info in util.bytes2json(results):
+        output_dict[route_info['TravelTimeID']] = {'id':          route_info['TravelTimeID'],
+                                                   'name':        route_info['Name'],
+                                                   'description': route_info['Description'],
+                                                   'current':     route_info['CurrentTime'],
+                                                   'average':     route_info['AverageTime'],
+                                                   'update_time': route_info['TimeUpdated'],
+                                                   'url':         url_map.get(route_info['TravelTimeID'], ''),
+                                                   }
+    return output_dict
+
+def run_collector(sleep_time, json_dir):
+    # exist_ok was introduced in Python3.2.
+    # If we need to work with older versions, this can change to a try...except
+    os.makedirs(json_dir, exist_ok=True)
+    try:
+        logger.info("Locating latest file")
+        newest_filepath = sorted(os.listdir(json_dir))[-1]
+        with open('{dir}/{file}'.format(dir=json_dir, file=newest_filepath), mode='rb') as f:
+            logger.info("Loading latest file")
+            last_results = f.read()
+    except IndexError:
+        logger.info("No file found in JSON directory")
+        last_results = None
+
+    while True:
+        try:
+            logger.info("Getting current traffic data")
+            last_results, diff = collect_data(last_results, json_dir)
+            if diff:
+                logger.debug("New Data!")
+            else:
+                logger.debug("No Change")
+        except urllib_error.URLError as e:
+            logger.error(e)
+        sleep(sleep_time)
 
 if __name__ == '__main__':
     print(collect_data())
