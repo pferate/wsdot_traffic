@@ -7,7 +7,7 @@ from time import sleep, strftime
 from . import util
 
 
-logger = logging.getLogger('wsdot_traffic.collector')
+logger = logging.getLogger('wsdot_traffic')
 
 WSDOT_API_URLS = {}
 
