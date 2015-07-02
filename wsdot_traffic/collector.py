@@ -1,5 +1,6 @@
 import os
 from six.moves.urllib.request import urlopen
+from six.moves.urllib import error as urllib_error
 from time import strftime
 
 
@@ -24,8 +25,12 @@ def config_wsdot_api_urls(api_key=None):
 def latest_travel_times():
     if not WSDOT_API_URLS:
         config_wsdot_api_urls()
-    api_call = urlopen(WSDOT_API_URLS['GET_TRAVEL_TIMES'])
-    return api_call.read()
+    try:
+        api_call = urlopen(WSDOT_API_URLS['GET_TRAVEL_TIMES'])
+        content = api_call.read()
+    except urllib_error.HTTPError:
+        content = None
+    return content
 
 def collect_data(last_results=None, collection_dir=None):
     # latest_travel_times() is subject to external network errors
