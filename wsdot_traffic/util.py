@@ -13,5 +13,6 @@ def clean_js_timestamp(raw_js_datestring=None):
     timestamp, millisecs, tz_offset = matches.groups()
     offset = timedelta(hours=int(tz_offset))
     # print(offset)
-    dt_obj = datetime.utcfromtimestamp(int(timestamp)) + offset
+    # dt_obj = datetime.utcfromtimestamp(int(timestamp)) + offset
+    dt_obj = datetime.utcfromtimestamp(int(timestamp))
     return dt_obj
